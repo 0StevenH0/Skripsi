@@ -1,3 +1,5 @@
-pymilvus==2.0.0
+pymilvus==2.2.10
 requests==2.25.1
 flask==2.0.1
+grpcio>=1.47.1
+milvus==2.2.10

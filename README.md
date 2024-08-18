@@ -12,3 +12,5 @@ C:.<br>
 ![alt text](https://github.com/0StevenH0/Skripsi/blob/dev/Proposal_Graph.jpeg)
 
 If a function does not have TODO, you can ignore it and work on that later
+
+> If you're in pycharm ensure that you have changed your python environment to .venv in this folder
