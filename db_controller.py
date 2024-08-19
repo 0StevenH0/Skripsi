@@ -1,8 +1,9 @@
 import pymilvus as m
 
-class Connector():
 
-    def __init__(self, link,alias, host, user, port,password):
+class DBConnectorService():
+
+    def __init__(self, link, alias, host, user, port, password):
         self.link = link
         self.alias = alias
         self.host = host
@@ -11,7 +12,7 @@ class Connector():
         self.password = password
         self.connection = False
 
-    def connect(self,name):
+    def connect(self):
         """
         connect to db
 
@@ -34,16 +35,20 @@ class Connector():
             print(f"Failed to connect to Milvus server: {e}")
             return False
 
-    def disconnect(self) -> int:
+    def disconnect(self) -> bool:
         """
         disconnect from db
 
         :return:status that indicates
-            0 not connected to db
-            1 connected to db
+            False failed disconnect
+            True successful disconnect
         """
-        # TODO
-        pass
+        try:
+            self.connection.disconnect()
+        except Exception as e:
+            return False
+
+        return True
 
     def fetch_per_batch(self, query: str, batch_size: int = 1000) -> list:
         """
@@ -69,11 +74,11 @@ class Connector():
     def create_db(self, db_name) -> bool:
 
         if not self.connection:
-            if not self.connect(self.alias):
+            if not self.connect():
                 return False
 
         try:
-            existing_dbs = m.utility.list_database()
+            existing_dbs = m.db.list_database()
             print("Existing databases:", existing_dbs)
             print("=========================================")
 
@@ -81,9 +86,37 @@ class Connector():
                 print(f"Database '{db_name}' already exists")
                 return True
 
-            m.utility.create_database(db_name)
+            m.db.create_database(db_name)
             print(f"Database '{db_name}' created successfully")
             return True
         except Exception as e:
             print(f"Failed to create database: {e}")
             return False
+
+    def use_db(self, db_name):
+
+        m.db.using_database(db_name)
+
+        print("Successfully used DB")
+
+    def purge_db(self,db_name):
+
+        if not self.connection:
+            if not self.connect():
+                return False
+
+        m.db.using_database(db_name)
+
+        # Get all collections in the database
+        collections = m.utility.list_collections()
+
+        # Drop each collection
+        for collection_name in collections:
+            m.utility.drop_collection(collection_name)
+            print(f"Dropped collection: {collection_name}")
+
+        try:
+            m.db.drop_database(db_name)
+            print(f"Database '{db_name}' has been successfully dropped.")
+        except Exception as e:
+            print(f"Failed to drop database '{db_name}': {e}")
