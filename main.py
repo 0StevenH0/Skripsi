@@ -1,8 +1,8 @@
 import db_controller
 import settings
-# import fix_typo
-# import rag_pipeline
-# import torch
+import fix_typo
+import rag_pipeline
+import torch
 
 if __name__ == "__main__":
     settings = settings.Settings()
