@@ -16,4 +16,4 @@ If a function does not have TODO, you can ignore it and work on that later
 > If you're in pycharm ensure that you have changed your python environment to .venv in this folder
 ## To Run:
 - run setup.py, switch to environment created (should be printed when you run it in terminal)
-- run run_server.py in pararel with main.py
+- run run_server.py in parallel with main.py
