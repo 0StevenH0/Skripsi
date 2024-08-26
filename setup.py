@@ -25,17 +25,16 @@ class VenvManager:
         else:
             print(f"Virtual environment already exists in the current directory.")
 
-    def get_activate_command(self):
+    def get_venv_python(self):
         if sys.platform == "win32":
-            return os.path.join(self.venv_name, "Scripts", "activate")
-        else:
-            return f"source {os.path.join(self.venv_path, 'bin', 'activate')}"
+            return os.path.join(self.venv_path, "Scripts", "python.exe")
+        return os.path.join(self.venv_path, "bin", "python")
 
     def install_requirements(self):
         if os.path.exists(self.requirements_file):
             print(f"Installing requirements from '{self.requirements_file}'...")
-            python_exe = os.path.join(self.venv_path, "Scripts", "python.exe") if sys.platform == "win32" else os.path.join(self.venv_path, "bin", "python")
-            subprocess.run([python_exe, "-m", "pip", "install", "-r", self.requirements_file], check=True)
+            venv_python = self.get_venv_python()
+            subprocess.run([venv_python, "-m", "pip", "install", "-r", self.requirements_file], check=True)
             print("Requirements installed successfully.")
         else:
             print(f"Error: Requirements file '{self.requirements_file}' not found.")
@@ -46,8 +45,19 @@ class VenvManager:
 
         self.create_venv()
         self.install_requirements()
-        print("\nVirtual environment setup complete.")
-        print(f"To activate the environment, run: {self.get_activate_command()}")
+        print("\nVirtual environment setup complete and requirements installed.")
+        print(f"to run : {self.get_activate_command()}")
+
+    def run_script(self, script_name):
+        venv_python = self.get_venv_python()
+        print(f"Running {script_name} in the virtual environment...")
+        subprocess.run([venv_python, script_name])
+
+    def get_activate_command(self):
+        if sys.platform == "win32":
+            return os.path.join(self.venv_name, "Scripts", "activate")
+        else:
+            return f"source {os.path.join(self.venv_path, 'bin', 'activate')}"
 
 if __name__ == "__main__":
     manager = VenvManager()

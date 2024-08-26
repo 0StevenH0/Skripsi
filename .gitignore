@@ -4,6 +4,7 @@ typo/
 QA_model/
 pretrained/
 model/
+tokenizer/
 __pycache__/
 .ipynb_checkpoints/
 .*
