@@ -1,4 +1,4 @@
 from . import (DBController,
-               FixType,
+               FixTypo,
                rag_pipeline,
                )
