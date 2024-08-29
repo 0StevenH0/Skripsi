@@ -58,7 +58,6 @@ class DBConnectorService():
         :param batch_size: num data per batch
         :return: sorted ranked text embedding
         """
-        # TODO
         pass
 
     def text_rank(self, retrieved: list) -> list:
@@ -68,7 +67,6 @@ class DBConnectorService():
         :param retrieved:  retrieved value from annoy_search
         :return: sorted ranked text embedding
         """
-        # TODO
         pass
 
     def create_db(self, db_name) -> bool:
@@ -97,7 +95,7 @@ class DBConnectorService():
 
         m.db.using_database(db_name)
 
-        print("Successfully used DB")
+        print("Successfully used DBManager")
 
     def purge_db(self,db_name):
 
