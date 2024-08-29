@@ -1,6 +1,6 @@
 from transformers import BertTokenizer, TFBertModel,BertForQuestionAnswering
 import torch
-import db_controller,fix_typo
+import DBController,FixType
 
 class BERT_QA():
 

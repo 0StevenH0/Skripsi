@@ -10,11 +10,10 @@ class Settings():
         self.port = 19530
         self.link = "temp link"
         self.vector_dims = 256
-        self.vector_metrics = "L2"
-        self.vector_index_type = "HNSW"
-        self.params ={
-            "M": 16,
-            "efConstruction": 500
+        self.vector_metrics_type = "L2"
+        self.vector_index_type = "IVF_FLAT"
+        self.params = {
+            "nList": 1024
         }
         self.model_path = "./model"
         self.tokenizer_path = "./tokenizer"

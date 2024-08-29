@@ -1,9 +1,9 @@
-import db_controller
+import DBController
 import settings
-import fix_typo
+import FixType
 import rag_pipeline
 import torch
-import Database
+import DBManager
 import ModelManager
 from CoreModel import CoreModel
 from nltk.tokenize import sent_tokenize
@@ -14,7 +14,7 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def startup_event():
-    global core_model, connection, collection
+    global core_model, connection, db
 
     print("Setting up\n")
 
@@ -29,7 +29,7 @@ async def startup_event():
     print("Settings up done\nEstablishing connection\n")
 
     # Establish database connection
-    connection = db_controller.DBConnectorService(
+    connection = DBController.DBConnectorService(
         app_settings.link,
         app_settings.alias,
         app_settings.host,
@@ -40,56 +40,59 @@ async def startup_event():
 
     connection.connect()
 
-    # Uncomment this if the database doesn't exist
-    # connection.create_db(app_settings.vector_db_name)
+    connection.create_db(app_settings.vector_db_name)
 
     connection.use_db(app_settings.vector_db_name)
 
-    db = Database.DB()
-    collection = db.get_vector_collection()
+    db = DBManager.DBManager()
 
     print("Startup complete")
 
 @app.get("/response")
 async def response():
-    global core_model, connection, collection
+    # Main Port
+    global core_model, connection, db
 
-    return {"message": "FUCK YEAH~~~!!! API is working!; "}
+    return {"message": "YEAH~~~!!! API is working!; ","ignore this":"la"}
 
-# if __name__ == "__main__":
-#
-#     startup_event()
-    # print("setting up\n")
+@app.get("/debug")
+async def response():
+    # Use this for debugging
+    global core_model, connection, db
+
+    return {"message": "YEAH~~~!!! API is working!; ","ignore this":db.vector_db,"ignore this 2":db.level_dbs}
+
+if __name__ == "__main__":
+
+    # This part of the code will be used for Resetting everything, including initializing DB, Model, And Inserting Data
+    print("setting up\n")
+
+    settings = settings.Settings()
+    model_manager = ModelManager.ModelManager()
+    core_model = CoreModel()
+    nltk.download('punkt')
+    core_model.add(model = model_manager.model,tokenizer = core_model.tokenizer)
+
+    print("settings up done\nestablishing connection\n")
+
+    connection = DBController.DBConnectorService(
+        settings.link,
+        settings.alias,
+        settings.host,
+        settings.user,
+        settings.port,
+        settings.password
+    )
+
+    connection.connect()
     #
-    # settings = settings.Settings()
-    # model_manager = ModelManager.ModelManager()
-    # core_model = CoreModel()
-    # nltk.download('punkt')
-    # core_model.add(model = model_manager.model,tokenizer = core_model.tokenizer)
+    connection.purge_db(settings.vector_db_name)
     #
-    # print("settings up done\nestablishing connection\n")
+    connection.create_db(settings.vector_db_name)
     #
-    # connection = db_controller.DBConnectorService(
-    #     settings.link,
-    #     settings.alias,
-    #     settings.host,
-    #     settings.user,
-    #     settings.port,
-    #     settings.password
-    # )
+    connection.use_db(settings.vector_db_name)
     #
-    # connection.connect()
-    #
-    # # To remove DB uncomment this
-    # # connection.purge_db(settings.vector_db_name)
-    #
-    # # uncomment this if database not exist
-    # # connection.create_db(settings.vector_db_name)
-    #
-    # connection.use_db(settings.vector_db_name)
-    #
-    # db = Database.DB()
-    # collection = db.get_vector_collection()
+    db = DBManager.DBManager()
 
 
     # import random
@@ -132,3 +135,4 @@ async def response():
     # answer_tokens = inputs["input_ids"][0][start_index:end_index + 1]
     # answer = model.tokenizer.decode(answer_tokens, skip_special_tokens=True)
     # print(answer)
+    pass
