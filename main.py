@@ -1,6 +1,6 @@
 import DBController
 import settings
-import FixType
+import FixTypo
 import rag_pipeline
 import torch
 import DBManager
