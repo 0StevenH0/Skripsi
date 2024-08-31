@@ -9,6 +9,9 @@ from CoreModel import CoreModel
 from nltk.tokenize import sent_tokenize
 import nltk
 from fastapi import FastAPI
+from KnowledgeHandler import KnowledgeHandler
+from RequestForm import ModelRequest
+
 
 app = FastAPI()
 
@@ -16,20 +19,13 @@ app = FastAPI()
 async def startup_event():
     global core_model, connection, db
 
-    print("Setting up\n")
-
     # Initialize settings and models
     app_settings = settings.Settings()
-    model_manager = ModelManager.ModelManager()
-    core_model = CoreModel()
 
-    nltk.download('punkt')
-    core_model.add(model=model_manager.model, tokenizer=core_model.tokenizer)
-
-    print("Settings up done\nEstablishing connection\n")
+    print("Establishing connection\n")
 
     # Establish database connection
-    connection = DBController.DBConnectorService(
+    connection = DBController.DBController(
         app_settings.link,
         app_settings.alias,
         app_settings.host,
@@ -40,27 +36,94 @@ async def startup_event():
 
     connection.connect()
 
-    connection.create_db(app_settings.vector_db_name)
-
     connection.use_db(app_settings.vector_db_name)
+
+    print("Setting up\n")
+
+
+    model_manager = ModelManager.ModelManager()
+    core_model = CoreModel()
+
+    print("installing punkt")
+    nltk.download('punkt')
+    core_model.add(model=model_manager.model, tokenizer=model_manager.tokenizer)
 
     db = DBManager.DBManager()
 
     print("Startup complete")
 
-@app.get("/response")
-async def response():
+@app.post("/response")
+async def response(request:ModelRequest):
     # Main Port
     global core_model, connection, db
 
-    return {"message": "YEAH~~~!!! API is working!; ","ignore this":"la"}
+    search_vector = core_model.embed(request.search)[1]
+    search_vector = search_vector.detach().numpy().tolist()
+
+    result = db.search(search_vector)
+
+    return {"message": result}
+
+@app.get("/fix")
+async def fix_relation():
+    # Use this to repopulate
+    global db
+
+    db.create_relation()
+
+    return {"message": "YEAH~~~!!! API is working!; ","ignore this":"function : fix_relation"}
+
 
 @app.get("/debug")
-async def response():
+async def debug():
     # Use this for debugging
     global core_model, connection, db
 
+    print(db.vector_db.list_collections)
+
     return {"message": "YEAH~~~!!! API is working!; ","ignore this":db.vector_db,"ignore this 2":db.level_dbs}
+
+@app.post("/search")
+async def search(request:ModelRequest):
+    # Implement Search
+    global core_model, connection, db
+
+    search_params = {"metric_type": "L2", "params": {"nprobe": 10}}
+
+    search_vector = core_model.embed(request.search)[1]
+    search_vector = search_vector.detach().numpy().tolist()
+
+    output_fields = ["text"] + [f"level_{i}" for i in range(8)]
+
+    results = db.vector_db.search(
+        data=search_vector,
+        anns_field="vector",
+        param = search_params,
+        limit=5,
+        expr=None,
+        output_fields=output_fields
+    )
+
+    processed_results = []
+    for hit in results[0]:
+        processed_hit = {
+            "id": hit.id,
+            "distance": hit.distance,
+            "text": hit.entity.get('text'),
+        }
+        for level in range(8):
+            field_name = f"level_{level}"
+            processed_hit[field_name] = hit.entity.get(field_name)
+
+        processed_results.append(processed_hit)
+
+    return {"message": processed_results}
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    global connection
+
+    connection.disconnect()
 
 if __name__ == "__main__":
 
@@ -70,12 +133,13 @@ if __name__ == "__main__":
     settings = settings.Settings()
     model_manager = ModelManager.ModelManager()
     core_model = CoreModel()
+    print("downloading punkt")
     nltk.download('punkt')
-    core_model.add(model = model_manager.model,tokenizer = core_model.tokenizer)
+    core_model.add(model = model_manager.model,tokenizer = model_manager.tokenizer)
 
     print("settings up done\nestablishing connection\n")
 
-    connection = DBController.DBConnectorService(
+    connection = DBController.DBController(
         settings.link,
         settings.alias,
         settings.host,
@@ -93,6 +157,40 @@ if __name__ == "__main__":
     connection.use_db(settings.vector_db_name)
     #
     db = DBManager.DBManager()
+
+    knowledge_handler = KnowledgeHandler()
+    context = knowledge_handler.temporary_knowledge()
+    knowledge = []
+
+    for i in context:
+        knowledge.append(core_model.embed(i, pool=True)[1])
+
+    knowledge = torch.stack(knowledge, dim=1)[0]
+
+    knowledge = knowledge.detach().numpy()
+
+    level = knowledge_handler.make_level()
+
+    print("Inserting to DB")
+
+    db.vector_db.insert([
+        knowledge,
+        context,
+        level["level_0"],
+        level["level_1"],
+        level["level_2"],
+        level["level_3"],
+        level["level_4"],
+        level["level_5"],
+        level["level_6"],
+        level["level_7"]
+    ])
+
+    for i in range(0,8):
+        db.level_dbs[f"level_{i}_db"].insert([
+            level[f"level_{i}"],
+
+        ])
 
 
     # import random

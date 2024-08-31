@@ -1,7 +1,10 @@
+import json
+import re
+
 import pymilvus as m
 
 
-class DBConnectorService():
+class DBController():
 
     def __init__(self, link, alias, host, user, port, password):
         self.link = link
@@ -11,6 +14,12 @@ class DBConnectorService():
         self.port = port
         self.password = password
         self.connection = False
+        self.vector_db = None
+        self.level_dbs = None
+
+    def assign_db(self,vector_db,level_dbs):
+        self.vector_db = vector_db
+        self.level_dbs = level_dbs
 
     def connect(self):
         """
@@ -118,3 +127,4 @@ class DBConnectorService():
             print(f"Database '{db_name}' has been successfully dropped.")
         except Exception as e:
             print(f"Failed to drop database '{db_name}': {e}")
+
