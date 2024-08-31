@@ -9,13 +9,15 @@ class Settings():
         self.password = "Santa_Claus"
         self.port = 19530
         self.link = "temp link"
-        self.vector_dims = 256
+        self.vector_dims = 768
         self.vector_metrics_type = "L2"
         self.vector_index_type = "IVF_FLAT"
         self.params = {
-            "nList": 1024
+            "nList": 768
         }
         self.model_path = "./model"
+        self.qa_model_path = "./qa_model"
         self.tokenizer_path = "./tokenizer"
         self.source_model_path = "esakrissa/IndoBERT-SQuAD"
         self.source_tokenizer_path = "esakrissa/IndoBERT-SQuAD"
+        self.source_qa_model_path = "esakrissa/IndoBERT-SQuAD"

@@ -1,27 +1,29 @@
 from settings import Settings
 import os
-from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+from transformers import AutoTokenizer, AutoModelForQuestionAnswering,BertModel
 
 
 class ModelManager:
-    __slots__ = ["model", "typo_corrector", "tokenizer"]
+    __slots__ = ["model", "typo_corrector", "tokenizer","qa_model"]
 
     def __init__(self):
         print("Initializing model")
         self.model = self.init_model()
         print("Initializing tokenizer")
         self.tokenizer = self.init_tokenizer()
+        print("Initializing qa_model")
+        self.qa_model = self.init_qa_model()
 
     def init_model(self):
-        self.ensure_directory_exists(settings.tokenizer_path)
+        self.ensure_directory_exists(settings.model_path)
         if not (self.is_file_exist(settings.model_path)):
             print("downloading model from hugging face")
-            model = AutoModelForQuestionAnswering.from_pretrained(settings.source_model_path)
+            model = BertModel.from_pretrained(settings.source_model_path)
             model.save_pretrained(settings.model_path)
 
         print("model initialized")
 
-        return AutoModelForQuestionAnswering.from_pretrained(settings.model_path)
+        return BertModel.from_pretrained(settings.model_path)
 
     def init_tokenizer(self):
         self.ensure_directory_exists(settings.tokenizer_path)
@@ -33,6 +35,17 @@ class ModelManager:
 
         print("tokenizer initialized")
         return AutoTokenizer.from_pretrained(settings.tokenizer_path)
+
+    def init_qa_model(self):
+        self.ensure_directory_exists(settings.qa_model_path)
+        if not (self.is_file_exist(settings.qa_model_path)):
+            print("downloading model from hugging face")
+            model = AutoModelForQuestionAnswering.from_pretrained(settings.source_qa_model_path)
+            model.save_pretrained(settings.qa_model_path)
+
+        print("model initialized")
+
+        return AutoModelForQuestionAnswering.from_pretrained(settings.model_path)
 
     def ensure_directory_exists(self, path):
         if not os.path.exists(path):
