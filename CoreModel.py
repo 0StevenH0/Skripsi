@@ -1,13 +1,17 @@
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+import faiss
+
+from settings import Settings
 
 
 class CoreModel():
-    __slots__ = ["model", "typo_corrector", "tokenizer"]
+    __slots__ = ["model", "typo_corrector", "tokenizer","index"]
 
     def __init__(self):
         self.model = None
         self.typo_corrector = None
         self.tokenizer = None
+        self.index = faiss.IndexFlatIP(settings.vector_dims)
 
     def add(self, **kwargs):
         for key, value in kwargs.items():
@@ -24,3 +28,13 @@ class CoreModel():
             return tokens, outputs["pooler_output"], outputs
         return tokens, outputs["last_hidden_state"], outputs
 
+    def train_index(self,knowledge):
+
+        for i in range(0, len(knowledge) - 5, 5):
+            z = knowledge[i:i + 4]
+            faiss.normalize_L2(z)
+            self.index.add(z)
+
+        faiss.write_index(self.index,settings.index_file_name)
+
+settings = Settings()
