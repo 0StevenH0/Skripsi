@@ -2,8 +2,8 @@ class Settings():
     # IK should use ENV; but too lazy to set it
     def __init__(self):
         self.alias = "default"
-        self.vector_db_name = "vector_db"
-        self.mm_db_name = "multi_media_db"
+        self.vector_db_name = "vector_db.db"
+        self.mm_db_name = "multi_media_db.db"
         self.host = "127.0.0.1"
         self.user = "user"
         self.password = "Santa_Claus"
@@ -21,3 +21,5 @@ class Settings():
         self.source_model_path = "esakrissa/IndoBERT-SQuAD"
         self.source_tokenizer_path = "esakrissa/IndoBERT-SQuAD"
         self.source_qa_model_path = "esakrissa/IndoBERT-SQuAD"
+        self.insert_batch_size = 20
+        self.index_file_name = "vector_index.index"
