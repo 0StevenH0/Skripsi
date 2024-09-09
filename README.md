@@ -11,8 +11,9 @@ If a function does not have TODO, you can ignore it and work on that later
 
 > Controller should handle task related to manipulating 
 
-## To Run:
+## To Run (step by step)
 - run setup.py, switch to environment created (should be printed when you run it in terminal)
+- run main.py, it should initialize everything
 - to start : uvicorn main:app --reload
-  - this will download model, establish connection, set database
+  - if you cant run this, uninstall fastapi, then pip install fastapi==0.103.0 uvicorn
 - to hit api : http://0.0.0.0:8000/response
