@@ -23,7 +23,8 @@ class DBManager:
             level_4 VARCHAR(100),
             level_5 VARCHAR(100),
             level_6 VARCHAR(100),
-            level_7 VARCHAR(100)
+            level_7 VARCHAR(100),
+            val varchar(1000)
         );
         '''
 
@@ -56,8 +57,9 @@ class DBManager:
             level_4, 
             level_5, 
             level_6, 
-            level_7
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+            level_7,
+            val
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?);
         '''
 
         # Prepare data for batch insert
@@ -70,7 +72,8 @@ class DBManager:
             level["level_4"],
             level["level_5"],
             level["level_6"],
-            level["level_7"]
+            level["level_7"],
+            level["val"]
         ))
 
         # Process in batches
@@ -81,6 +84,8 @@ class DBManager:
             except Exception as e:
                 print(f"SQLite error: {e}")
                 self.connection.rollback()
+
+
 
     def batch_generator(self, iterable, batch_size):
         """

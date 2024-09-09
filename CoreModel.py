@@ -5,12 +5,13 @@ from settings import Settings
 
 
 class CoreModel():
-    __slots__ = ["model", "typo_corrector", "tokenizer","index"]
+    __slots__ = ["model", "typo_corrector", "tokenizer","index","qa_model"]
 
     def __init__(self):
         self.model = None
         self.typo_corrector = None
         self.tokenizer = None
+        self.qa_model = None
         self.index = faiss.IndexFlatIP(settings.vector_dims)
 
     def add(self, **kwargs):

@@ -22,7 +22,7 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def startup_event():
-    global core_model, connection, db, index
+    global core_model, connection, db, index,knowledge_handler
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
     # Initialize settings and models
     app_settings = settings.Settings()
@@ -38,7 +38,7 @@ async def startup_event():
         app_settings.port,
         app_settings.password
     )
-
+    knowledge_handler = KnowledgeHandler()
     connection.connect()
 
     connection.use_db(app_settings.vector_db_name)
@@ -52,7 +52,7 @@ async def startup_event():
 
     print("installing punkt")
     nltk.download('punkt')
-    core_model.add(model=model_manager.model, tokenizer=model_manager.tokenizer)
+    core_model.add(model=model_manager.model, tokenizer=model_manager.tokenizer,qa_model = model_manager.qa_model)
 
     db = DBManager.DBManager(connection.connection, connection.cursor)
 
@@ -62,14 +62,35 @@ async def startup_event():
 @app.post("/response")
 async def response(request: ModelRequest):
     # Main Port
-    global core_model, connection, db
+    global core_model, connection, db,index,knowledge_handler
 
+    print("starting")
     search_vector = core_model.embed(request.search)[1]
-    search_vector = search_vector.detach().numpy().tolist()
+    search_vector = search_vector.detach().numpy()
 
-    result = db.search(search_vector)
+    docs = index.search(search_vector)
 
-    return {"message": result}
+    condition = knowledge_handler.make_condition(request.search)
+
+    result = connection.get_vector_db(docs[1],condition)
+    print(result)
+    answers = ".".join([i[0].strip() for i in result])
+    print(answers)
+    inputs = core_model.tokenizer("bagaimana jurusan akuntansi binus?",answers,return_tensors = "pt")
+    outputs = core_model.qa_model(**inputs)
+    start_scores = outputs.start_logits
+    end_scores = outputs.end_logits
+
+    start_index = torch.argmax(start_scores)
+    end_index = torch.argmax(end_scores)
+
+    if start_index >= end_index:
+        answer = "GA TAU :("
+    else:
+        answer_tokens = inputs["input_ids"][0][start_index:end_index + 1]
+        answer = core_model.tokenizer.decode(answer_tokens, skip_special_tokens=True)
+
+    return {"message": answer}
 
 
 @app.get("/fix")
@@ -126,7 +147,7 @@ if __name__ == "__main__":
     core_model = CoreModel()
     print("downloading punkt")
     nltk.download('punkt')
-    core_model.add(model=model_manager.model, tokenizer=model_manager.tokenizer)
+    core_model.add(model=model_manager.model, tokenizer=model_manager.tokenizer,qa_model = model_manager.qa_model)
 
     print("settings up done\nestablishing connection\n")
 
