@@ -40,8 +40,9 @@ class ModelManager:
         self.ensure_directory_exists(settings.qa_model_path)
         if not (self.is_file_exist(settings.qa_model_path)):
             print("downloading model from hugging face")
-            model = AutoModelForQuestionAnswering.from_pretrained(settings.source_qa_model_path)
-            model.save_pretrained(settings.qa_model_path)
+            qa_model = AutoModelForQuestionAnswering.from_pretrained(settings.source_qa_model_path)
+            qa_model.save_pretrained(settings.qa_model_path)
+            self.qa_model = qa_model
 
         print("model initialized")
 

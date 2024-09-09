@@ -124,11 +124,13 @@ class DBController():
 
         connection.commit()
 
-    def get_vector_db(self,ids):
-        # print(tuple(map(tuple,ids)))
-        id_tuple = tuple(ids.tolist()[0])
-        print(id_tuple)
-        query = f"SELECT * FROM vector_table WHERE id IN {id_tuple}"
+    def get_vector_db(self,ids,extra_condition):
+        print(ids)
+        id_tuple = tuple([id + 1 if id >= 0 else id for id in ids.tolist()[0]])
+
+        query = f"SELECT val FROM vector_table WHERE id IN {id_tuple} {extra_condition}"
+        print(query)
         self.cursor.execute(query)
 
         return self.cursor.fetchall()
+
