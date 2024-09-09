@@ -15,4 +15,4 @@ If a function does not have TODO, you can ignore it and work on that later
 - run setup.py, switch to environment created (should be printed when you run it in terminal)
 - to start : uvicorn main:app --reload
   - this will download model, establish connection, set database
-- to hit api : http://127.0.0.1:8000/response
+- to hit api : http://0.0.0.0:8000/response
