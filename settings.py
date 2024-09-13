@@ -18,8 +18,10 @@ class Settings():
         self.model_path = "./model"
         self.qa_model_path = "./qa_model"
         self.tokenizer_path = "./tokenizer"
+        self.typo_corrector_path = "./typo_corrector"
         self.source_model_path = "esakrissa/IndoBERT-SQuAD"
         self.source_tokenizer_path = "esakrissa/IndoBERT-SQuAD"
         self.source_qa_model_path = "esakrissa/IndoBERT-SQuAD"
+        self.source_typo_corrector_path = "oliverguhr/spelling-correction-english-base"
         self.insert_batch_size = 20
         self.index_file_name = "vector_index.index"
