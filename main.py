@@ -3,7 +3,6 @@ import faiss
 import DBController
 import settings
 import FixTypo
-import rag_pipeline
 import torch
 import DBManager
 import ModelManager
@@ -16,16 +15,18 @@ from RequestForm import ModelRequest
 import numpy as np
 from Index import Index
 import os
-
+import google.generativeai as genai
 app = FastAPI()
 
 
 @app.on_event("startup")
 async def startup_event():
-    global core_model, connection, db, index,knowledge_handler
+    global core_model, connection, db, index,knowledge_handler,gemini_model
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
     # Initialize settings and models
     app_settings = settings.Settings()
+    genai.configure(api_key=settings.GOOGLE_API_KEY)
+    gemini_model = genai.GenerativeModel('gemini-1.5-flash-exp-0827')
 
     print("Establishing connection\n")
 
@@ -92,6 +93,29 @@ async def response(request: ModelRequest):
 
     return {"message": answer}
 
+@app.post("/response")
+async def gemini_response(request: ModelRequest):
+    # Main Port
+    global core_model, connection, db,index,knowledge_handler,gemini_model
+
+    print("starting")
+    search_vector = core_model.embed(request.search)[1]
+    search_vector = search_vector.detach().numpy()
+
+    docs = index.search(search_vector)
+
+    condition = knowledge_handler.make_condition(request.search)
+
+    result = connection.get_vector_db(docs[1],condition)
+    print(result)
+    answers = ".".join([i[0].strip() for i in result])
+    response = gemini_model.generate_content(
+        f"Answer question about binus based on this knowledge and ensure you're using the same language the user ask.Knowledge : {answers}; question : {request.search}",
+        safety_settings={'HARASSMENT': 'block_none'})
+
+
+
+    return {"message": response}
 
 @app.get("/fix")
 async def fix_relation():

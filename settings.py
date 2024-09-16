@@ -25,3 +25,4 @@ class Settings():
         self.source_typo_corrector_path = "oliverguhr/spelling-correction-english-base"
         self.insert_batch_size = 20
         self.index_file_name = "vector_index.index"
+        self.GOOGLE_API_KEY = "AIzaSyC3d605YEkoR5bInZlsiFyV0y78UoFu1-Y"
