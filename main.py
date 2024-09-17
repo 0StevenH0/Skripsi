@@ -25,7 +25,7 @@ async def startup_event():
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
     # Initialize settings and models
     app_settings = settings.Settings()
-    genai.configure(api_key=settings.GOOGLE_API_KEY)
+    genai.configure(api_key=app_settings.GOOGLE_API_KEY)
     gemini_model = genai.GenerativeModel('gemini-1.5-flash-exp-0827')
 
     print("Establishing connection\n")
@@ -93,7 +93,7 @@ async def response(request: ModelRequest):
 
     return {"message": answer}
 
-@app.post("/response")
+@app.post("/response-gemini")
 async def gemini_response(request: ModelRequest):
     # Main Port
     global core_model, connection, db,index,knowledge_handler,gemini_model
@@ -109,13 +109,13 @@ async def gemini_response(request: ModelRequest):
     result = connection.get_vector_db(docs[1],condition)
     print(result)
     answers = ".".join([i[0].strip() for i in result])
-    response = gemini_model.generate_content(
+    gemini_response = gemini_model.generate_content(
         f"Answer question about binus based on this knowledge and ensure you're using the same language the user ask.Knowledge : {answers}; question : {request.search}",
         safety_settings={'HARASSMENT': 'block_none'})
 
+    print(gemini_response)
 
-
-    return {"message": response}
+    return {"message": gemini_response.text}
 
 @app.get("/fix")
 async def fix_relation():
