@@ -1,10 +1,11 @@
 # Ignore build artifacts
 typo_tokenizer/
 typo/
-QA_model/
+qa_model/
 pretrained/
 model/
 tokenizer/
+typo_corrector/
 __pycache__/
 .ipynb_checkpoints/
 .*
