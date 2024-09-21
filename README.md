@@ -17,3 +17,5 @@ If a function does not have TODO, you can ignore it and work on that later
 - to start : uvicorn main:app --reload
   - if you cant run this, uninstall fastapi, then pip install fastapi==0.103.0 uvicorn
 - to hit api : http://0.0.0.0:8000/response
+- use ur own api key on settings -> google api key
+  - to get api key: use google ai studio
