@@ -23,7 +23,7 @@ class KnowledgeHandler:
         text = {
             "[6[PROGRAM AKADEMIK]] [5[DISIPLIN S1]] [4[SCHOOL OF ACCOUNTING]] [3[ACCOUNTING]] [2[(@BEKASI)]] [[DESKRIPSI PROGRAM]]": "Accounting Technology Program, merupakan Program Sarjana Akuntansi, School of Accounting, Binus University yang berlokasi di Kampus Binus Bekasi. Program Sarjana Akuntansi ini menekankan pada kurikulum Akuntansi yang diintegrasikan pada penguasaan penerapan teknologi akuntansi (accounting software) bagi mahasiswanya.",
             "[6[PROGRAM AKADEMIK]] [5[DISIPLIN S1]] [4[SCHOOL OF ACCOUNTING]] [3[ACCOUNTING]] [2[(@BEKASI)]] [[PROSPEK KARIR]]": "Professional Accountant (yang fokus pada bidang, tetapi tidak terbatas sebagai) : Business Transformer, Data Navigator dan Digital Playmaker. Lulusan dapat juga berkarir sebagai Public Accountant, Management Accountant, Internal Auditor, Government Accountant, Government Auditor, Tax Consultant, Banker, Finance  Analyst, Entrepreneur",
-            "[6[PROGRAM AKADEMIK]] [5[DISIPLIN S1]] [4[SCHOOL OF ACCOUNTING]] [3[ACCOUNTING]] [2[(@BEKASI)]] [[[ACCREDITATION]]": "] : Unggul | HEEACT",
+            "[6[PROGRAM AKADEMIK]] [5[DISIPLIN S1]] [4[SCHOOL OF ACCOUNTING]] [3[ACCOUNTING]] [2[(@BEKASI)]] [[[ACCREDITATION]]": "Unggul | HEEACT",
             "[6[PROGRAM AKADEMIK]] [5[DISIPLIN S1]] [4[SCHOOL OF ACCOUNTING]] [3[ACCOUNTING]] [2[(@BEKASI)]] [[DURATION]]": "4 Tahun",
             "[6[PROGRAM AKADEMIK]] [5[DISIPLIN S1]] [4[SCHOOL OF ACCOUNTING]] [3[ACCOUNTING]] [2[(@BEKASI)]] [[ACADEMIC TITLES]]": "Ak.",
 
@@ -131,6 +131,19 @@ class KnowledgeHandler:
             "[6[PROGRAM AKADEMIK]] [5[DISIPLIN S1]] [4[BINUS BUSINESS SCHOOL]] [3[ENTREPRENEURSHIP]] [2[(@MALANG)]] [1[BUSINESS CREATION]] [[ACADEMIC TITLE]]": "S.Bns."
         }
 
+        return text
+
+    def question_mapping(self):
+        """
+        ARVIO TODO
+
+        map like this:
+        {
+        original question : question dalam bentuk level seperti yg di buat di excel
+        }
+        """
+
+        text = {}
         return text
 
     def make_level(self):

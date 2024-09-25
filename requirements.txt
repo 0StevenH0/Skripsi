@@ -11,3 +11,5 @@ faiss-cpu==1.8.0
 google==2.0.3
 google-generativeai==0.8.1
 symspellpy==6.7.8
+fuzzywuzzy==0.18.0
+python-levenshtein==0.25.1
