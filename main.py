@@ -16,12 +16,16 @@ import numpy as np
 from Index import Index
 import os
 import google.generativeai as genai
+from MatchingStrategy import *
+from RecordKeeper import persist_result
 app = FastAPI()
 
 
 @app.on_event("startup")
 async def startup_event():
     global core_model, connection, db, index,knowledge_handler,gemini_model
+
+    # this solution is bad, but dont have lots of time so fk it
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
     # Initialize settings and models
     app_settings = settings.Settings()
@@ -63,21 +67,23 @@ async def startup_event():
 @app.post("/response")
 async def response(request: ModelRequest):
     # Main Port
-    global core_model, connection, db,index,knowledge_handler
+    global core_model, connection, db,index
 
     print("starting")
-    search_vector = core_model.embed(request.search)[1]
+    knowledge = KnowledgeHandler()
+    text = match(request.search,knowledge)
+    search_vector = core_model.embed(text[1])[1]
     search_vector = search_vector.detach().numpy()
 
     docs = index.search(search_vector)
 
     condition = knowledge_handler.make_condition(request.search)
-
     result = connection.get_vector_db(docs[1],condition)
     print(result)
     answers = ".".join([i[0].strip() for i in result])
     print(answers)
-    inputs = core_model.tokenizer("bagaimana jurusan akuntansi binus?",answers,return_tensors = "pt")
+    inputs = core_model.tokenizer(text[0],answers,return_tensors = "pt")
+    print(text)
     outputs = core_model.qa_model(**inputs)
     start_scores = outputs.start_logits
     end_scores = outputs.end_logits
@@ -85,13 +91,27 @@ async def response(request: ModelRequest):
     start_index = torch.argmax(start_scores)
     end_index = torch.argmax(end_scores)
 
+    return_query = {}
+
     if start_index >= end_index:
         answer = "GA TAU :("
     else:
         answer_tokens = inputs["input_ids"][0][start_index:end_index + 1]
         answer = core_model.tokenizer.decode(answer_tokens, skip_special_tokens=True)
 
-    return {"message": answer}
+    return_query["BERT_MODEL"] = answer
+
+    condition = "OR 1=1"
+    result = connection.get_vector_db(docs[1],condition)
+    answers = ".".join([i[0].strip() for i in result])
+
+    gemini_answer = gemini_model.generate_content(
+        f"Answer question about binus based on this knowledge and ensure you're using the same language the user ask. Knowledge : {answers}; question : {request.search}",
+        safety_settings={'HARASSMENT': 'block_none'})
+
+    return_query["GEMINI"] = gemini_answer.text
+    persist_result(request,return_query,answers)
+    return {"message": return_query}
 
 @app.post("/response-gemini")
 async def gemini_response(request: ModelRequest):

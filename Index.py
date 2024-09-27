@@ -33,7 +33,7 @@ class Index:
         else:
             return False
 
-    def search(self,vector,k=7):
+    def search(self,vector,k=5):
         faiss.normalize_L2(vector)
         docs = self.index.search(vector, k=k)
         return docs

@@ -25,4 +25,7 @@ class Settings():
         self.source_typo_corrector_path = "oliverguhr/spelling-correction-english-base"
         self.insert_batch_size = 20
         self.index_file_name = "vector_index.index"
-        self.GOOGLE_API_KEY = "AIzaSyCrGPOPEbcT2dFzm0Cz49fBNJYhIifAeY4"
+        self.gemini_result_file_name = "gemini_result.csv"
+        self.bert_result_file_name = "bert_result.csv"
+        self.retrieval_result_file_name = "retrieval.csv"
+        self.GOOGLE_API_KEY = "AIzaSyA4tx4NGoWsA49R-NCmWFHKC2BgIYr8jwM"
