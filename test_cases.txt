@@ -1,0 +1,92 @@
+Short Length (3-6 words):
+1. English: What is the duration of the Finance program?  
+   Indonesian: Berapa lama durasi program Keuangan?
+
+2. English: What is the academic title for Fashion graduates?  
+   Indonesian: Gelar akademik apa untuk lulusan Fashion?
+
+3. English: What accreditation does the Film program have?  
+   Indonesian: Apa akreditasi dari program Film?
+
+4. English: What does the Taxation program focus on?
+   Indonesian: Apa fokus utama program Perpajakan?
+
+5. English: What career options do Digital Business graduates have?  
+   Indonesian: Apa peluang karier Bisnis Digital?
+
+6. English: Where is the Taxation program offered?  
+   Indonesian: Di mana program Perpajakan ditawarkan?
+
+7. English: What degree do you get in Finance?  
+   Indonesian: Gelar apa yang didapat di Keuangan?
+
+8. English: How long is the Fashion program?  
+   Indonesian: Berapa lama program Fashion?
+
+9. English: What career opportunities exist in Film?  
+   Indonesian: Apa peluang karier di bidang Film?
+
+10. English: How long is the Accounting program?  
+    Indonesian: Berapa lama program Akuntansi?
+
+Medium Length (7-11 words):
+1. English: What career paths are available for Interior Design graduates?  
+   Indonesian: Jalur karier apa yang tersedia bagi lulusan Desain Interior?
+
+2. English: What is the accreditation of the International Business program?  
+   Indonesian: Apa akreditasi dari program International Business?
+
+3. English: What prospective careers do Accounting graduates at Binus have?  
+   Indonesian: Karier apa yang tersedia untuk lulusan Akuntansi Binus?
+
+4. English: What is the academic title awarded to Taxation graduates?  
+   Indonesian: Gelar akademik apa yang diberikan kepada lulusan Perpajakan?
+
+5. English: How does the Fashion program prepare students for the industry?  
+   Indonesian: Bagaimana program Fashion mempersiapkan mahasiswa untuk industri?
+
+6. English: What are the key skills gained in Finance at Binus?  
+   Indonesian: Keterampilan utama apa yang diperoleh di Keuangan di Binus?
+
+7. English: What is the duration and title of the Interior Design program?  
+   Indonesian: Berapa lama dan gelar dari program Desain Interior?
+
+8. English: What is the role of internships in the Film program?  
+   Indonesian: Apa peran magang dalam program Film?
+
+9. English: How long does it take to complete Visual Communication Design?  
+   Indonesian: Berapa lama waktu untuk menyelesaikan Desain Komunikasi Visual?
+
+10. English: What are the prospective careers for graduates of the Digital Business program?  
+    Indonesian: Apa peluang karier bagi lulusan program Bisnis Digital?
+
+Long Length (≥12 words):
+1. English: What are the career opportunities for Animation graduates from BINUS University’s Visual Communication Design program?  
+   Indonesian: Apa peluang karier untuk lulusan program Desain Komunikasi Visual di BINUS University dalam bidang Animasi?
+
+2. English: How does the Interior Design program at BINUS integrate local wisdom and modern technology?  
+   Indonesian: Bagaimana program Desain Interior di BINUS mengintegrasikan kearifan lokal dan teknologi modern?
+
+3. English: What skills and knowledge are emphasized in the Digital Business program at BINUS University?  
+   Indonesian: Keterampilan dan pengetahuan apa yang ditekankan dalam program Bisnis Digital di BINUS University?
+
+4. English: What career paths are available for students graduating from the School of Accounting at BINUS?  
+   Indonesian: Jalur karier apa yang tersedia bagi mahasiswa yang lulus dari School of Accounting di BINUS?
+
+5. English: Can you describe the facilities available for Fashion students at BINUS University’s Alam Sutera Campus?  
+   Indonesian: Bisakah Anda jelaskan fasilitas yang tersedia bagi mahasiswa Fashion di Kampus Alam Sutera BINUS University?
+
+6. English: How does the BINUS Business School prepare students for a global career in International Business?  
+   Indonesian: Bagaimana BINUS Business School mempersiapkan mahasiswa untuk karier global di bidang International Business?
+
+7. English: What are the prospective careers for graduates of the Fashion program at BINUS University?  
+   Indonesian: Peluang karier apa saja yang tersedia bagi lulusan program Fashion di BINUS University?
+
+8. English: What unique learning opportunities are provided to Digital Business students at BINUS to support innovation?  
+   Indonesian: Peluang pembelajaran unik apa yang diberikan kepada mahasiswa Bisnis Digital di BINUS untuk mendukung inovasi?
+
+9. English: How does BINUS University’s Film program ensure that students are equipped with both technical and creative skills?  
+   Indonesian: Bagaimana program Film di BINUS University memastikan bahwa mahasiswa dibekali dengan keterampilan teknis dan kreatif?
+
+10. English: What are the accreditation and academic title associated with the Entrepreneurship Business Creation program at BINUS?  
+    Indonesian: Apa akreditasi dan gelar akademik yang terkait dengan program Entrepreneurship Business Creation di BINUS?
