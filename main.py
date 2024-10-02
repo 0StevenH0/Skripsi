@@ -101,15 +101,19 @@ async def response(request: ModelRequest):
 
     return_query["BERT_MODEL"] = answer
 
-    condition = "OR 1=1"
+    condition = knowledge_handler.make_condition(text[1])
     result = connection.get_vector_db(docs[1],condition)
     answers = ".".join([i[0].strip() for i in result])
 
-    gemini_answer = gemini_model.generate_content(
-        f"Answer question about binus based on this knowledge and ensure you're using the same language the user ask. Knowledge : {answers}; question : {request.search}",
-        safety_settings={'HARASSMENT': 'block_none'})
+    try:
+        gemini_answer = gemini_model.generate_content(
+            f"Answer question about binus based on this knowledge and ensure you're using the same language the user ask. Knowledge : {answers}; question : {request.search}",
+            safety_settings={'HARASSMENT': 'block_none'})
+        return_query["GEMINI"] = gemini_answer.text
+    except Exception as e:
+        return_query["GEMINI"] = f"error {e} for question : request.search"
 
-    return_query["GEMINI"] = gemini_answer.text
+
     persist_result(request,return_query,answers)
     return {"message": return_query}
 
