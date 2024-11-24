@@ -5,7 +5,7 @@ from settings import Settings
 
 
 class CoreModel():
-    __slots__ = ["model", "typo_corrector", "tokenizer","index","qa_model"]
+    __slots__ = ["model", "typo_corrector", "tokenizer","index","qa_model","ner"]
 
     def __init__(self):
         self.model = None
@@ -13,6 +13,7 @@ class CoreModel():
         self.tokenizer = None
         self.qa_model = None
         self.index = faiss.IndexFlatIP(settings.vector_dims)
+        self.ner = None
 
     def add(self, **kwargs):
         for key, value in kwargs.items():

@@ -1,6 +1,8 @@
 import re
 from collections import defaultdict
 
+from RecordKeeper import Record
+
 
 class KnowledgeHandler:
     __slots__ = ["text","level_patterns"]
@@ -203,4 +205,3 @@ class KnowledgeHandler:
 
 
 x = KnowledgeHandler()
-print(x.make_level())

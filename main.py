@@ -18,6 +18,9 @@ import os
 import google.generativeai as genai
 from MatchingStrategy import *
 from RecordKeeper import persist_result
+import dill
+import re
+
 app = FastAPI()
 
 
@@ -58,7 +61,9 @@ async def startup_event():
     print("installing punkt")
     nltk.download('punkt')
     core_model.add(model=model_manager.model, tokenizer=model_manager.tokenizer,qa_model = model_manager.qa_model)
-
+    with open('model.pkl', 'rb') as f:
+        core_model.add(ner  = dill.load(f))
+        
     db = DBManager.DBManager(connection.connection, connection.cursor)
 
     print("Startup complete")
@@ -79,11 +84,8 @@ async def response(request: ModelRequest):
 
     condition = knowledge_handler.make_condition(request.search)
     result = connection.get_vector_db(docs[1],condition)
-    print(result)
     answers = ".".join([i[0].strip() for i in result])
-    print(answers)
     inputs = core_model.tokenizer(text[0],answers,return_tensors = "pt")
-    print(text)
     outputs = core_model.qa_model(**inputs)
     start_scores = outputs.start_logits
     end_scores = outputs.end_logits
@@ -94,7 +96,7 @@ async def response(request: ModelRequest):
     return_query = {}
 
     if start_index >= end_index:
-        answer = "GA TAU :("
+        answer = "Maaf Saya Tidak Dapat Menjawab Pertanyaan Anda"
     else:
         answer_tokens = inputs["input_ids"][0][start_index:end_index + 1]
         answer = core_model.tokenizer.decode(answer_tokens, skip_special_tokens=True)
@@ -115,7 +117,21 @@ async def response(request: ModelRequest):
 
 
     persist_result(request,return_query,answers)
-    return {"message": return_query}
+    return {"message": return_query["GEMINI"]}
+
+@app.post("/response2")
+async def response_2(request: ModelRequest):
+    # Main Port
+    global core_model, connection, db,index
+
+    print("starting")
+    question = re.sub(r"[^\w\s]", "", request.search)
+    question = question.lower()
+    
+    ner_result = core_model.ner.predict(question)
+    merged_pairs = merge_pairs(question,ner_result)
+    db.query_construction(merged_pairs)
+
 
 @app.post("/response-gemini")
 async def gemini_response(request: ModelRequest):
@@ -292,3 +308,33 @@ if __name__ == "__main__":
     # answer = model.tokenizer.decode(answer_tokens, skip_special_tokens=True)
     # print(answer)
     pass
+
+
+def merge_pairs(_question,model_prediction):
+        question = _question.split(" ")
+        
+        merged_pairs = []
+        current_pred = None
+        current_text = []
+
+        for q, pred in zip(question, model_prediction):
+            if pred == 0:
+                if current_text:
+                    merged_pairs.append((" ".join(current_text), current_pred))
+                    current_text = []
+                current_pred = None
+            elif pred == current_pred:
+                current_text.append(q)
+            else:
+                if current_text:
+                    merged_pairs.append((" ".join(current_text), current_pred))
+                current_pred = pred
+                current_text = [q]
+
+        if current_text:
+            merged_pairs.append((" ".join(current_text), current_pred))
+
+        if not merged_pairs:
+            return -1
+        
+        return merged_pairs

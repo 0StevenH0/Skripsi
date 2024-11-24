@@ -9,3 +9,5 @@ typo_corrector/
 __pycache__/
 .ipynb_checkpoints/
 .*
+Test/
+model.pkl

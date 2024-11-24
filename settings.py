@@ -28,4 +28,5 @@ class Settings():
         self.gemini_result_file_name = "gemini_result.csv"
         self.bert_result_file_name = "bert_result.csv"
         self.retrieval_result_file_name = "retrieval.csv"
-        self.GOOGLE_API_KEY = "AIzaSyA4tx4NGoWsA49R-NCmWFHKC2BgIYr8jwM"
+        self.GOOGLE_API_KEY = "AIzaSyDasGPv1tjNi9YE48jgapws3vi5p6qm1n8"
+        self.records_dir = "records/"

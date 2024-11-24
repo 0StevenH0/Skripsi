@@ -1,6 +1,7 @@
 import json
 import re
 import sqlite3
+from RecordKeeper import Record
 import settings
 
 class DBController():
@@ -133,4 +134,3 @@ class DBController():
         self.cursor.execute(query)
 
         return self.cursor.fetchall()
-
