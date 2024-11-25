@@ -26,14 +26,14 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def startup_event():
-    global core_model, connection, db, index,knowledge_handler,gemini_model
+    global core_model, connection, db, index, knowledge_handler, gemini_model
 
     # this solution is bad, but dont have lots of time so fk it
-    os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+    os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
     # Initialize settings and models
     app_settings = settings.Settings()
     genai.configure(api_key=app_settings.GOOGLE_API_KEY)
-    gemini_model = genai.GenerativeModel('gemini-1.5-flash-exp-0827')
+    gemini_model = genai.GenerativeModel("gemini-1.5-flash-exp-0827")
 
     print("Establishing connection\n")
 
@@ -44,7 +44,7 @@ async def startup_event():
         app_settings.host,
         app_settings.user,
         app_settings.port,
-        app_settings.password
+        app_settings.password,
     )
     knowledge_handler = KnowledgeHandler()
     connection.connect()
@@ -59,11 +59,15 @@ async def startup_event():
     index = Index()
 
     print("installing punkt")
-    nltk.download('punkt')
-    core_model.add(model=model_manager.model, tokenizer=model_manager.tokenizer,qa_model = model_manager.qa_model)
-    with open('model.pkl', 'rb') as f:
-        core_model.add(ner  = dill.load(f))
-        
+    nltk.download("punkt")
+    core_model.add(
+        model=model_manager.model,
+        tokenizer=model_manager.tokenizer,
+        qa_model=model_manager.qa_model,
+    )
+    with open("model.pkl", "rb") as f:
+        core_model.add(ner=dill.load(f))
+
     db = DBManager.DBManager(connection.connection, connection.cursor)
 
     print("Startup complete")
@@ -72,20 +76,20 @@ async def startup_event():
 @app.post("/response")
 async def response(request: ModelRequest):
     # Main Port
-    global core_model, connection, db,index
+    global core_model, connection, db, index
 
     print("starting")
     knowledge = KnowledgeHandler()
-    text = match(request.search,knowledge)
+    text = match(request.search, knowledge)
     search_vector = core_model.embed(text[1])[1]
     search_vector = search_vector.detach().numpy()
 
     docs = index.search(search_vector)
 
     condition = knowledge_handler.make_condition(request.search)
-    result = connection.get_vector_db(docs[1],condition)
+    result = connection.get_vector_db(docs[1], condition)
     answers = ".".join([i[0].strip() for i in result])
-    inputs = core_model.tokenizer(text[0],answers,return_tensors = "pt")
+    inputs = core_model.tokenizer(text[0], answers, return_tensors="pt")
     outputs = core_model.qa_model(**inputs)
     start_scores = outputs.start_logits
     end_scores = outputs.end_logits
@@ -98,45 +102,46 @@ async def response(request: ModelRequest):
     if start_index >= end_index:
         answer = "Maaf Saya Tidak Dapat Menjawab Pertanyaan Anda"
     else:
-        answer_tokens = inputs["input_ids"][0][start_index:end_index + 1]
+        answer_tokens = inputs["input_ids"][0][start_index : end_index + 1]
         answer = core_model.tokenizer.decode(answer_tokens, skip_special_tokens=True)
 
     return_query["BERT_MODEL"] = answer
 
     condition = knowledge_handler.make_condition(text[1])
-    result = connection.get_vector_db(docs[1],condition)
+    result = connection.get_vector_db(docs[1], condition)
     answers = ".".join([i[0].strip() for i in result])
 
     try:
         gemini_answer = gemini_model.generate_content(
             f"Answer question about binus based on this knowledge and ensure you're using the same language the user ask. Knowledge : {answers}; question : {request.search}",
-            safety_settings={'HARASSMENT': 'block_none'})
+            safety_settings={"HARASSMENT": "block_none"},
+        )
         return_query["GEMINI"] = gemini_answer.text
     except Exception as e:
         return_query["GEMINI"] = f"error {e} for question : request.search"
 
-
-    persist_result(request,return_query,answers)
+    persist_result(request, return_query, answers)
     return {"message": return_query["GEMINI"]}
+
 
 @app.post("/response2")
 async def response_2(request: ModelRequest):
     # Main Port
-    global core_model, connection, db,index
+    global core_model, connection, db, index
 
     print("starting")
     question = re.sub(r"[^\w\s]", "", request.search)
     question = question.lower()
-    
-    ner_result = core_model.ner.predict(question)
-    merged_pairs = merge_pairs(question,ner_result)
+
+    ner_result = torch.tensor(core_model.ner.predict(question))
+    merged_pairs = merge_pairs(question, ner_result)
     db.query_construction(merged_pairs)
 
 
 @app.post("/response-gemini")
 async def gemini_response(request: ModelRequest):
     # Main Port
-    global core_model, connection, db,index,knowledge_handler,gemini_model
+    global core_model, connection, db, index, knowledge_handler, gemini_model
 
     print("starting")
     search_vector = core_model.embed(request.search)[1]
@@ -146,16 +151,18 @@ async def gemini_response(request: ModelRequest):
 
     condition = knowledge_handler.make_condition(request.search)
 
-    result = connection.get_vector_db(docs[1],condition)
+    result = connection.get_vector_db(docs[1], condition)
     print(result)
     answers = ".".join([i[0].strip() for i in result])
     gemini_response = gemini_model.generate_content(
         f"Answer question about binus based on this knowledge and ensure you're using the same language the user ask.Knowledge : {answers}; question : {request.search}",
-        safety_settings={'HARASSMENT': 'block_none'})
+        safety_settings={"HARASSMENT": "block_none"},
+    )
 
     print(gemini_response)
 
     return {"message": gemini_response.text}
+
 
 @app.get("/fix")
 async def fix_relation():
@@ -164,7 +171,10 @@ async def fix_relation():
 
     db.create_relation()
 
-    return {"message": "YEAH~~~!!! API is working!; ", "ignore this": "function : fix_relation"}
+    return {
+        "message": "YEAH~~~!!! API is working!; ",
+        "ignore this": "function : fix_relation",
+    }
 
 
 @app.get("/debug")
@@ -174,7 +184,11 @@ async def debug():
 
     print(db.vector_db.list_collections)
 
-    return {"message": "YEAH~~~!!! API is working!; ", "ignore this": db.vector_db, "ignore this 2": db.level_dbs}
+    return {
+        "message": "YEAH~~~!!! API is working!; ",
+        "ignore this": db.vector_db,
+        "ignore this 2": db.level_dbs,
+    }
 
 
 @app.post("/search")
@@ -188,10 +202,7 @@ async def search(request: ModelRequest):
 
     print(connection.get_vector_db(docs[1]))
 
-
-    return {
-        "response": "ok"
-    }
+    return {"response": "ok"}
 
 
 @app.on_event("shutdown")
@@ -202,7 +213,6 @@ async def shutdown_event():
 
 
 if __name__ == "__main__":
-
     # This part of the code will be used for Resetting everything, including initializing DB, Model, And Inserting Data
     print("setting up\n")
 
@@ -210,8 +220,12 @@ if __name__ == "__main__":
     model_manager = ModelManager.ModelManager()
     core_model = CoreModel()
     print("downloading punkt")
-    nltk.download('punkt')
-    core_model.add(model=model_manager.model, tokenizer=model_manager.tokenizer,qa_model = model_manager.qa_model)
+    nltk.download("punkt")
+    core_model.add(
+        model=model_manager.model,
+        tokenizer=model_manager.tokenizer,
+        qa_model=model_manager.qa_model,
+    )
 
     print("settings up done\nestablishing connection\n")
 
@@ -221,7 +235,7 @@ if __name__ == "__main__":
         settings.host,
         settings.user,
         settings.port,
-        settings.password
+        settings.password,
     )
 
     connection.connect()
@@ -250,15 +264,13 @@ if __name__ == "__main__":
 
     index.load_index()
 
+    index_per_level = Index(faiss.IndexFlatIP(settings.vector_dims))
+
     db = DBManager.DBManager(connection.connection, connection.cursor)
 
     print("Inserting to DB")
 
-    db.insert_to_vector_table(
-        context,
-        level,
-        settings.insert_batch_size
-    )
+    db.insert_to_vector_table(context, level, settings.insert_batch_size)
 
     #
     # for i in range(0,8):
@@ -310,31 +322,31 @@ if __name__ == "__main__":
     pass
 
 
-def merge_pairs(_question,model_prediction):
-        question = _question.split(" ")
-        
-        merged_pairs = []
-        current_pred = None
-        current_text = []
+def merge_pairs(_question, model_prediction):
+    question = _question.split(" ")
 
-        for q, pred in zip(question, model_prediction):
-            if pred == 0:
-                if current_text:
-                    merged_pairs.append((" ".join(current_text), current_pred))
-                    current_text = []
-                current_pred = None
-            elif pred == current_pred:
-                current_text.append(q)
-            else:
-                if current_text:
-                    merged_pairs.append((" ".join(current_text), current_pred))
-                current_pred = pred
-                current_text = [q]
+    merged_pairs = []
+    current_pred = None
+    current_text = []
 
-        if current_text:
-            merged_pairs.append((" ".join(current_text), current_pred))
+    for q, pred in zip(question, model_prediction):
+        if pred == 0:
+            if current_text:
+                merged_pairs.append((" ".join(current_text), current_pred))
+                current_text = []
+            current_pred = None
+        elif pred == current_pred:
+            current_text.append(q)
+        else:
+            if current_text:
+                merged_pairs.append((" ".join(current_text), current_pred))
+            current_pred = pred
+            current_text = [q]
 
-        if not merged_pairs:
-            return -1
-        
-        return merged_pairs
+    if current_text:
+        merged_pairs.append((" ".join(current_text), current_pred))
+
+    if not merged_pairs:
+        return -1
+
+    return merged_pairs
