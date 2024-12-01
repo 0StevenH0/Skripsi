@@ -1,0 +1,8 @@
+2024-12-01 12:58:50,"{'args': ([('waktu berapa tahun', tensor(1)), ('sains komputer', tensor(3)), ('akuntansi', tensor(3))],), 'kwargs': {}}","[(array([[0.7619248 , 0.7442212 , 0.70904136, 0.64552504, 0.6440401 ]],
+      dtype=float32), array([[0, 6, 1, 4, 5]], dtype=int64)), (array([[0.93145007, 0.8678604 , 0.86784405, 0.8662828 , 0.8641429 ]],
+      dtype=float32), array([[35, 30, 48, 42, 37]], dtype=int64)), (array([[1.        , 0.8862773 , 0.8744161 , 0.8738943 , 0.87026966]],
+      dtype=float32), array([[16, 25, 28, 46, 24]], dtype=int64))]"
+2024-12-01 13:20:34,"{'args': ([('waktu berapa tahun', tensor(1)), ('sains komputer', tensor(3)), ('akuntansi', tensor(3))],), 'kwargs': {}}","[(array([[0.7442212 , 0.70904136, 0.64552504, 0.6440401 , 0.5904366 ]],
+      dtype=float32), array([[5, 0, 3, 4, 2]], dtype=int64)), (array([[0.93145007, 0.8678604 , 0.86784405, 0.8662828 , 0.8641429 ]],
+      dtype=float32), array([[35, 30, 48, 42, 37]], dtype=int64)), (array([[1.        , 0.8862773 , 0.8744161 , 0.8738943 , 0.87026966]],
+      dtype=float32), array([[16, 25, 28, 46, 24]], dtype=int64))]"

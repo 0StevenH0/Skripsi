@@ -7,6 +7,7 @@ from settings import Settings
 
 class Index:
     def __init__(self, index=None, path=None):
+        self.index = None
         if not self.load_index(path):
             self.index = index
 
@@ -20,6 +21,11 @@ class Index:
         print(path)
         self.save_index(path)
         print(self.index.ntotal)
+
+    def train2(self, data, path=None):
+        faiss.normalize_L2(data)
+        self.index.add(data)
+        self.save_index(path)
 
     def save_index(self, path=None):
         faiss.write_index(self.index, path or settings.index_file_name)

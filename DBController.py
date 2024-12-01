@@ -4,8 +4,8 @@ import sqlite3
 from RecordKeeper import Record
 import settings
 
-class DBController():
 
+class DBController:
     def __init__(self, link, alias, host, user, port, password):
         self.link = link
         self.alias = alias
@@ -19,7 +19,7 @@ class DBController():
         self.conn = None
         self.cursor = None
 
-    def assign_db(self,vector_db,level_dbs):
+    def assign_db(self, vector_db, level_dbs):
         self.vector_db = vector_db
         self.level_dbs = level_dbs
 
@@ -77,7 +77,6 @@ class DBController():
         pass
 
     def create_db(self, db_name) -> bool:
-
         if not self.connection:
             if not self.connect():
                 return False
@@ -103,13 +102,11 @@ class DBController():
             return False
 
     def use_db(self, db_name):
-
         self.connection = sqlite3.connect(db_name)
         self.cursor = self.connection.cursor()
         print("Successfully used DBManager")
 
-    def purge_db(self,db_name):
-
+    def purge_db(self, db_name):
         if not self.connection:
             if not self.connect():
                 return False
@@ -125,7 +122,7 @@ class DBController():
 
         connection.commit()
 
-    def get_vector_db(self,ids,extra_condition):
+    def get_vector_db(self, ids, extra_condition):
         print(ids)
         id_tuple = tuple([id + 1 if id >= 0 else id for id in ids.tolist()[0]])
 
@@ -133,4 +130,10 @@ class DBController():
         print(query)
         self.cursor.execute(query)
 
+        return self.cursor.fetchall()
+
+    @Record("sql_retrieval.csv")
+    def find_data(self, condition):
+        query = f"SELECT val FROM vector_table {condition}"
+        self.cursor.execute(query)
         return self.cursor.fetchall()

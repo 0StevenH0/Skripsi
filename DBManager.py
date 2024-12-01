@@ -13,7 +13,7 @@ class DBManager:
         self.setup_all_collections(connection, cursor)
 
     def get_vector_collection(self, connection, cursor):
-        create_table_query = '''
+        create_table_query = """
         CREATE TABLE IF NOT EXISTS vector_table (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             text VARCHAR(1000),             
@@ -27,7 +27,7 @@ class DBManager:
             level_7 VARCHAR(100),
             val varchar(1000)
         );
-        '''
+        """
 
         cursor.execute(create_table_query)
         connection.commit()
@@ -38,18 +38,18 @@ class DBManager:
 
     def setup_all_collections(self, connection, cursor):
         self.get_vector_collection(connection, cursor)
-        self.get_multi_media_collection(connection,cursor)
+        self.get_multi_media_collection(connection, cursor)
         for i in range(0, 8):
             self.get_level_collection(i, connection, cursor)
 
-    def insert_to_vector_table(self, context, level,batch_size):
+    def insert_to_vector_table(self, context, level, batch_size):
         """
         Inserts multiple rows into the vector_table in batches.
         :param batch_size: batch size per insert
         :param context: List of context texts
         :param level: Dictionary of level lists
         """
-        query = '''
+        query = """
         INSERT INTO vector_table (
             text, 
             level_0, 
@@ -62,21 +62,23 @@ class DBManager:
             level_7,
             val
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?);
-        '''
+        """
 
         # Prepare data for batch insert
-        data = list(zip(
-            context,
-            level["level_0"],
-            level["level_1"],
-            level["level_2"],
-            level["level_3"],
-            level["level_4"],
-            level["level_5"],
-            level["level_6"],
-            level["level_7"],
-            level["val"]
-        ))
+        data = list(
+            zip(
+                context,
+                level["level_0"],
+                level["level_1"],
+                level["level_2"],
+                level["level_3"],
+                level["level_4"],
+                level["level_5"],
+                level["level_6"],
+                level["level_7"],
+                level["val"],
+            )
+        )
 
         # Process in batches
         for batch in self.batch_generator(data, batch_size):
@@ -99,28 +101,26 @@ class DBManager:
             yield batch
 
     def create_level_query(self, level):
-        return f''' CREATE TABLE IF NOT EXISTS level_{level} (
+        return f""" CREATE TABLE IF NOT EXISTS level_{level} (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             vector BLOB,                         
             text VARCHAR(2500)             
         );
-        '''
+        """
 
-    def get_multi_media_collection(self,connection, cursor):
-        create_table_query = f''' CREATE TABLE IF NOT EXISTS multi_media (
+    def get_multi_media_collection(self, connection, cursor):
+        create_table_query = f""" CREATE TABLE IF NOT EXISTS multi_media (
             id INTEGER PRIMARY KEY AUTOINCREMENT,                          
             name VARCHAR(500),
             path VARCHAR(1000)             
         );
-        '''
+        """
 
         cursor.execute(create_table_query)
         connection.commit()
-        
-        
+
     @Record("query_construction.csv")
     def query_construction(self, merged_pairs):
-
         grouped = {}
         for text, pred in merged_pairs:
             grouped.setdefault(pred, []).append(text)
@@ -128,7 +128,9 @@ class DBManager:
         conditions = []
         for pred, texts in grouped.items():
             if len(texts) > 1:
-                or_conditions = " OR ".join(f"level_{pred} = '{text}'" for text in texts)
+                or_conditions = " OR ".join(
+                    f"level_{pred} = '{text}'" for text in texts
+                )
                 conditions.append(f"({or_conditions})")
             else:
                 conditions.append(f"level_{pred} = '{texts[0]}'")
@@ -136,6 +138,12 @@ class DBManager:
         where_clause = " AND ".join(conditions)
         query = f"WHERE {where_clause}"
         return query
+
+    @Record("sql_retrieval.csv")
+    def find_data(self, condition):
+        create_table_query = f"""SELECT var FROM vector_table {condition}"""
+
+        return self.cursor.execute(create_table_query)
 
 
 settings = Settings()

@@ -4,8 +4,16 @@ import faiss
 from settings import Settings
 
 
-class CoreModel():
-    __slots__ = ["model", "typo_corrector", "tokenizer","index","qa_model","ner"]
+class CoreModel:
+    __slots__ = [
+        "model",
+        "typo_corrector",
+        "tokenizer",
+        "index",
+        "qa_model",
+        "ner",
+        "pre_process",
+    ]
 
     def __init__(self):
         self.model = None
@@ -14,6 +22,7 @@ class CoreModel():
         self.qa_model = None
         self.index = faiss.IndexFlatIP(settings.vector_dims)
         self.ner = None
+        self.pre_process = None
 
     def add(self, **kwargs):
         for key, value in kwargs.items():
@@ -22,7 +31,7 @@ class CoreModel():
             else:
                 raise AttributeError(f"Unknown attribute: {key}")
 
-    def embed(self, text, pool = True):
+    def embed(self, text, pool=True):
         tokens = self.tokenizer(text, return_tensors="pt")
         outputs = self.model(**tokens)
 
@@ -30,13 +39,13 @@ class CoreModel():
             return tokens, outputs["pooler_output"], outputs
         return tokens, outputs["last_hidden_state"], outputs
 
-    def train_index(self,knowledge):
-
+    def train_index(self, knowledge):
         for i in range(0, len(knowledge) - 5, 5):
-            z = knowledge[i:i + 4]
+            z = knowledge[i : i + 4]
             faiss.normalize_L2(z)
             self.index.add(z)
 
-        faiss.write_index(self.index,settings.index_file_name)
+        faiss.write_index(self.index, settings.index_file_name)
+
 
 settings = Settings()

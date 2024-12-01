@@ -1,4 +1,4 @@
-class Settings():
+class Settings:
     # IK should use ENV; but too lazy to set it
     def __init__(self):
         self.alias = "default"
@@ -12,9 +12,7 @@ class Settings():
         self.vector_dims = 768
         self.vector_metrics_type = "L2"
         self.vector_index_type = "IVF_FLAT"
-        self.params = {
-            "nList": 768
-        }
+        self.params = {"nList": 768}
         self.model_path = "./model"
         self.qa_model_path = "./qa_model"
         self.tokenizer_path = "./tokenizer"
@@ -30,3 +28,4 @@ class Settings():
         self.retrieval_result_file_name = "retrieval.csv"
         self.GOOGLE_API_KEY = "AIzaSyDasGPv1tjNi9YE48jgapws3vi5p6qm1n8"
         self.records_dir = "records/"
+        self.threshold = 0.70

@@ -1,0 +1,7 @@
+Timestamp,Input,Output
+2024-12-01 13:46:20,"{'args': (<DBController.DBController object at 0x0000020C1A212290>, ""WHERE level_1 = 'durasi' AND level_3 = 'KOMPUTER SAINS' AND level_3 = 'AKUNTANSI'""), 'kwargs': {}}",[]
+2024-12-01 13:48:43,"{'args': (<DBController.DBController object at 0x0000028DB7566050>, ""WHERE level_1 = 'durasi' AND level_3 = 'KOMPUTER SAINS' AND level_3 = 'AKUNTANSI'""), 'kwargs': {}}",[]
+2024-12-01 13:51:22,"{'args': (<DBController.DBController object at 0x000002338DC21F30>, ""WHERE level_1 = 'durasi' AND level_3 = 'KOMPUTER SAINS' AND level_3 = 'AKUNTANSI'""), 'kwargs': {}}",[]
+2024-12-01 13:57:23,"{'args': (<DBController.DBController object at 0x000002E4AD322020>, ""WHERE level_7 = 'Jurusan' AND level_3 = 'AKUNTANSI'""), 'kwargs': {}}",[]
+2024-12-01 13:59:37,"{'args': (<DBController.DBController object at 0x0000020BA72F1DB0>, ""WHERE level_7 = 'Jurusan' AND level_3 = 'AKUNTANSI'""), 'kwargs': {}}",[]
+2024-12-01 14:00:45,"{'args': (<DBController.DBController object at 0x0000020BA72F1DB0>, ""WHERE level_7 = 'Jurusan' AND level_3 = 'FILM'""), 'kwargs': {}}",[]

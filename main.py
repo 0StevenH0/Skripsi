@@ -17,16 +17,24 @@ from Index import Index
 import os
 import google.generativeai as genai
 from MatchingStrategy import *
-from RecordKeeper import persist_result
+from RecordKeeper import Record, persist_result
 import dill
 import re
+from PreProcess import PreProcess
 
 app = FastAPI()
 
 
 @app.on_event("startup")
 async def startup_event():
-    global core_model, connection, db, index, knowledge_handler, gemini_model
+    global \
+        core_model, \
+        connection, \
+        db, \
+        index, \
+        knowledge_handler, \
+        gemini_model, \
+        app_settings
 
     # this solution is bad, but dont have lots of time so fk it
     os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -68,6 +76,7 @@ async def startup_event():
     with open("model.pkl", "rb") as f:
         core_model.add(ner=dill.load(f))
 
+    core_model.add(pre_process=PreProcess())
     db = DBManager.DBManager(connection.connection, connection.cursor)
 
     print("Startup complete")
@@ -127,15 +136,31 @@ async def response(request: ModelRequest):
 @app.post("/response2")
 async def response_2(request: ModelRequest):
     # Main Port
-    global core_model, connection, db, index
+    global core_model, connection, db, index, app_settings
 
     print("starting")
     question = re.sub(r"[^\w\s]", "", request.search)
     question = question.lower()
-
+    question = core_model.pre_process.process(question)
     ner_result = torch.tensor(core_model.ner.predict(question))
     merged_pairs = merge_pairs(question, ner_result)
-    db.query_construction(merged_pairs)
+    merged_pairs = index_per_level(merged_pairs, app_settings.threshold)
+    query_condition = db.query_construction(merged_pairs)
+    result = connection.find_data(query_condition)
+    answers = ".".join([i[0].strip() for i in result])
+
+    return_query = {}
+
+    try:
+        gemini_answer = gemini_model.generate_content(
+            f"Answer question about binus based on this knowledge and ensure you're using the same language the user ask. Knowledge : {answers}; question : {request.search}",
+            safety_settings={"HARASSMENT": "block_none"},
+        )
+        return_query["GEMINI"] = gemini_answer.text
+    except Exception as e:
+        return_query["GEMINI"] = f"error {e} for question : request.search"
+
+    return {"message": return_query["GEMINI"]}
 
 
 @app.post("/response-gemini")
@@ -322,6 +347,7 @@ if __name__ == "__main__":
     pass
 
 
+@Record("entity_chunking.csv")
 def merge_pairs(_question, model_prediction):
     question = _question.split(" ")
 
@@ -332,21 +358,39 @@ def merge_pairs(_question, model_prediction):
     for q, pred in zip(question, model_prediction):
         if pred == 0:
             if current_text:
-                merged_pairs.append((" ".join(current_text), current_pred))
+                merged_pairs.append([" ".join(current_text), current_pred])
                 current_text = []
             current_pred = None
         elif pred == current_pred:
             current_text.append(q)
         else:
             if current_text:
-                merged_pairs.append((" ".join(current_text), current_pred))
+                merged_pairs.append([" ".join(current_text), current_pred])
             current_pred = pred
             current_text = [q]
 
     if current_text:
-        merged_pairs.append((" ".join(current_text), current_pred))
+        merged_pairs.append([" ".join(current_text), current_pred])
 
     if not merged_pairs:
         return -1
 
     return merged_pairs
+
+
+@Record("per_level_index_mapping.csv")
+def index_per_level(chunked_entity, threshold):
+    global knowledge_handler
+    res = []
+    for j, i in enumerate(chunked_entity):
+        index = Index(path=f"level_{i[1].item()}.index")
+        search_vector = core_model.embed(i[0], pool=False)[1]
+        search_vector = search_vector.mean(dim=1).detach().numpy().reshape(1, -1)
+        dist, idx = index.search(search_vector, k=1)
+        if dist[0] > threshold:
+            chunked_entity[j][0] = knowledge_handler.list_per_level()[
+                f"level_{i[1].item()}"
+            ][idx[0][0]]
+            res.append(chunked_entity[j])
+
+    return res
